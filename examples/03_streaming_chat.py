@@ -2,15 +2,18 @@
 
 Demonstrates:
 - Token-by-token streaming responses
-- Thinking indicator
+- Animated thinking indicator with dots
+- Input history navigation (up/down arrows when at start of first line)
 - Prevents multiple simultaneous requests
 - Command palette integration
+- Text wrapping in chat history
 """
 
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, RichLog
 from textual.containers import Vertical
 from textual.command import Provider, Hit
+from textual import events
 import asyncio
 import sys
 import os
@@ -19,6 +22,77 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from vimkeys_input import VimTextArea
+
+
+class HistoryVimTextArea(VimTextArea):
+    """VimTextArea with input history navigation via up/down arrows."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.input_history = []  # List of previous inputs
+        self.history_index = -1  # Current position in history (-1 = not browsing)
+        self.current_draft = ""  # Store current text when browsing history
+
+    def add_to_history(self, text: str):
+        """Add an entry to input history."""
+        if text.strip():  # Don't add empty entries
+            self.input_history.append(text)
+            self.history_index = -1  # Reset history navigation
+
+    def on_key(self, event: events.Key) -> None:
+        """Handle arrow key history navigation."""
+        # Only handle up/down arrows
+        if event.key not in ("up", "down"):
+            # Reset history browsing if user types something else
+            if self.history_index != -1 and event.key not in ("escape", "enter"):
+                self.history_index = -1
+            return super().on_key(event)
+
+        cursor_row, cursor_col = self.cursor_location
+
+        # Up arrow: navigate to previous input
+        if event.key == "up":
+            # Only activate history if cursor is at first line, first column
+            if cursor_row == 0 and cursor_col == 0:
+                if not self.input_history:
+                    return  # No history to navigate
+
+                # First time browsing: save current draft
+                if self.history_index == -1:
+                    self.current_draft = self.text
+
+                # Move to previous history entry
+                if self.history_index == -1:
+                    self.history_index = len(self.input_history) - 1
+                elif self.history_index > 0:
+                    self.history_index -= 1
+
+                # Load history entry
+                self.text = self.input_history[self.history_index]
+                self.cursor_location = (0, 0)
+                event.prevent_default()
+                event.stop()
+                return
+
+        # Down arrow: navigate to next input
+        elif event.key == "down":
+            # Only if we're actively browsing history
+            if self.history_index != -1:
+                if self.history_index < len(self.input_history) - 1:
+                    self.history_index += 1
+                    self.text = self.input_history[self.history_index]
+                else:
+                    # Reached the end, restore draft
+                    self.history_index = -1
+                    self.text = self.current_draft
+
+                self.cursor_location = (0, 0)
+                event.prevent_default()
+                event.stop()
+                return
+
+        # Default behavior for other cases
+        return super().on_key(event)
 
 
 class ChatCommands(Provider):
@@ -93,7 +167,7 @@ class StreamingChatApp(App):
         yield Header()
         with Vertical():
             yield RichLog(id="history", markup=True, auto_scroll=True, highlight=True, wrap=True)
-            yield VimTextArea(id="input")
+            yield HistoryVimTextArea(id="input")
         yield Footer()
 
     def on_mount(self):
@@ -147,6 +221,10 @@ class StreamingChatApp(App):
 
         if not event.text.strip():
             return
+
+        # Add to input history
+        input_widget = self.query_one("#input", HistoryVimTextArea)
+        input_widget.add_to_history(event.text)
 
         # Store user message
         self.conversation.append({"role": "user", "content": event.text})
