@@ -11,6 +11,7 @@ from .vim_modes import VimMode, ModeIndicator
 from .operations import NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextObjectMixin
 from .count_handler import CountHandler
 from .marks import MarksManager
+from .operator_pending import OperatorPendingState, OperatorMotionHandler
 
 
 class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextObjectMixin, TextArea):
@@ -85,6 +86,7 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextO
         self.count_handler = CountHandler()  # For number prefixes (5j, 3dd)
         self.marks_manager = MarksManager()  # For marks (ma, 'a, `a)
         self.text_object_state = None  # For pending text object operations (d + i + w)
+        self.operator_pending = OperatorPendingState()  # For operator + motion (dw, c$, y3w)
 
         # Initialize CSS class
         self._update_mode_display()
@@ -164,9 +166,21 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextO
 
         # Handle number input for counts (5j, 3dd, etc.)
         if key.isdigit():
-            self.count_handler.add_digit(key)
+            # If we're in operator-pending mode, this is motion count (d3w)
+            if self.operator_pending.is_pending():
+                self.operator_pending.set_motion_count(
+                    self.operator_pending.motion_count * 10 + int(key)
+                )
+            else:
+                self.count_handler.add_digit(key)
             event.prevent_default()
             return
+
+        # Handle operator-pending mode (dw, c$, y3j, etc.)
+        if self.operator_pending.is_pending():
+            if self._handle_operator_motion(event):
+                event.prevent_default()
+                return
 
         # Handle pending commands first (dd, yy, gg, etc.)
         if self.pending_command:
@@ -299,24 +313,30 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextO
             self.edit_delete_char_back()
             event.prevent_default()
 
-        # Delete/change line (dd, D, cc, C)
+        # Delete/change/yank - enter operator-pending mode
         elif key == "d":
-            self.pending_command = "d"
+            count = self.count_handler.get_count(0)  # 0 means no count
+            self.operator_pending.set_operator("d", count)
+            self.count_handler.clear()
             event.prevent_default()
         elif key == "D":
             self.edit_delete_to_line_end()
             event.prevent_default()
         elif key == "c":
-            self.pending_command = "c"
+            count = self.count_handler.get_count(0)
+            self.operator_pending.set_operator("c", count)
+            self.count_handler.clear()
             event.prevent_default()
         elif key == "C":
             self.edit_delete_to_line_end()
             self._enter_insert_mode()
             event.prevent_default()
 
-        # Yank/copy line (yy)
+        # Yank - enter operator-pending mode
         elif key == "y":
-            self.pending_command = "y"
+            count = self.count_handler.get_count(0)
+            self.operator_pending.set_operator("y", count)
+            self.count_handler.clear()
             event.prevent_default()
 
         # Paste
@@ -384,6 +404,54 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextO
         elif key == "numbersign":  # #
             self.search_word_under_cursor(forward=False)
             event.prevent_default()
+
+    def _handle_operator_motion(self, event) -> bool:
+        """Handle motion key when in operator-pending mode.
+
+        Args:
+            event: Key event
+
+        Returns:
+            True if motion was handled
+        """
+        key = event.key
+        operator = self.operator_pending.get_operator()
+
+        # Handle same operator (dd, yy, cc) - line-wise operation
+        if key == operator:
+            count = self.operator_pending.get_total_count()
+            success = OperatorMotionHandler.execute_line_operator(self, operator, count)
+            self.operator_pending.clear()
+            return success
+
+        # Map keys to motion functions
+        motion_map = {
+            'h': self.nav_left,
+            'j': self.nav_down,
+            'k': self.nav_up,
+            'l': self.nav_right,
+            'w': self.nav_word_forward,
+            'b': self.nav_word_backward,
+            'e': self.nav_word_end,
+            '0': self.nav_line_start,
+            'dollar': self.nav_line_end,  # $
+            'circumflex': self.nav_first_non_whitespace,  # ^
+        }
+
+        if key in motion_map:
+            count = self.operator_pending.get_total_count()
+            success = OperatorMotionHandler.execute_operator_motion(
+                self, operator, motion_map[key], count
+            )
+            self.operator_pending.clear()
+            return success
+
+        # ESC cancels operator-pending
+        if key == "escape":
+            self.operator_pending.clear()
+            return True
+
+        return False
 
     def _handle_pending_command(self, event):
         """Handle second key of multi-key commands (dd, yy, gg, etc.)."""
