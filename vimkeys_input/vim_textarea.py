@@ -8,10 +8,12 @@ from textual.widgets import TextArea
 from textual.message import Message
 from textual.reactive import reactive
 from .vim_modes import VimMode, ModeIndicator
-from .operations import NavigationMixin, EditingMixin, VisualMixin, SearchMixin
+from .operations import NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextObjectMixin
+from .count_handler import CountHandler
+from .marks import MarksManager
 
 
-class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextArea):
+class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextObjectMixin, TextArea):
     """TextArea with vim keybindings and modal editing.
 
     This widget extends Textual's TextArea to provide vim-style modal editing with:
@@ -20,6 +22,9 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextA
     - Line operations (dd, yy, p, P)
     - Visual selection with operations
     - Character search (f, t, F, T)
+    - Count support (5j, 3dd, 2w, etc.) [Phase 2]
+    - Text objects (diw, ci", da(, etc.) [Phase 2]
+    - Marks (ma, 'a, `a) [Phase 2]
     - Undo/redo support
 
     The implementation uses mixins for organization:
@@ -27,6 +32,7 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextA
     - EditingMixin: Text editing operations
     - VisualMixin: Visual mode operations
     - SearchMixin: Character and word search
+    - TextObjectMixin: Text object operations [Phase 2]
     """
 
     DEFAULT_CSS = """
@@ -75,6 +81,11 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextA
         self.last_search_word = None  # For * and # searches
         self.yank_register = ""  # Copied text
 
+        # Phase 2 features
+        self.count_handler = CountHandler()  # For number prefixes (5j, 3dd)
+        self.marks_manager = MarksManager()  # For marks (ma, 'a, `a)
+        self.text_object_state = None  # For pending text object operations (d + i + w)
+
         # Initialize CSS class
         self._update_mode_display()
 
@@ -120,6 +131,8 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextA
         self.vim_mode = VimMode.COMMAND
         self.visual_start = None
         self.pending_command = None
+        self.count_handler.clear()  # Clear any pending count
+        self.text_object_state = None  # Clear text object state
         self._update_mode_display()
 
     def _enter_visual_mode(self):
@@ -149,6 +162,12 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextA
         """Handle keys in command mode."""
         key = event.key
 
+        # Handle number input for counts (5j, 3dd, etc.)
+        if key.isdigit():
+            self.count_handler.add_digit(key)
+            event.prevent_default()
+            return
+
         # Handle pending commands first (dd, yy, gg, etc.)
         if self.pending_command:
             self._handle_pending_command(event)
@@ -157,29 +176,50 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextA
 
         # === NAVIGATION ===
 
-        # Basic movement (hjkl)
+        # Basic movement (hjkl) - with count support
         if key == "h":
-            self.nav_left()
+            count = self.count_handler.get_count()
+            for _ in range(count):
+                self.nav_left()
+            self.count_handler.clear()
             event.prevent_default()
         elif key == "j":
-            self.nav_down()
+            count = self.count_handler.get_count()
+            for _ in range(count):
+                self.nav_down()
+            self.count_handler.clear()
             event.prevent_default()
         elif key == "k":
-            self.nav_up()
+            count = self.count_handler.get_count()
+            for _ in range(count):
+                self.nav_up()
+            self.count_handler.clear()
             event.prevent_default()
         elif key == "l":
-            self.nav_right()
+            count = self.count_handler.get_count()
+            for _ in range(count):
+                self.nav_right()
+            self.count_handler.clear()
             event.prevent_default()
 
-        # Word movement
+        # Word movement - with count support
         elif key == "w":
-            self.nav_word_forward()
+            count = self.count_handler.get_count()
+            for _ in range(count):
+                self.nav_word_forward()
+            self.count_handler.clear()
             event.prevent_default()
         elif key == "b":
-            self.nav_word_backward()
+            count = self.count_handler.get_count()
+            for _ in range(count):
+                self.nav_word_backward()
+            self.count_handler.clear()
             event.prevent_default()
         elif key == "e":
-            self.nav_word_end()
+            count = self.count_handler.get_count()
+            for _ in range(count):
+                self.nav_word_end()
+            self.count_handler.clear()
             event.prevent_default()
 
         # Line movement
