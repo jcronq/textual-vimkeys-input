@@ -1,28 +1,54 @@
 [project]
 name = "vimkeys-input"
-version = "0.1.0"
-description = "Vim-keybindings text input widget for Textual"
+version = "0.2.0"
+description = "Comprehensive Vim-style modal editing widget for Textual with operator+motion, text objects, and visual mode"
 readme = "README.md"
-authors = [{name = "Jason Cronquist"}]
+authors = [{name = "Jason Cronquist", email = "jason@example.com"}]
+maintainers = [{name = "Jason Cronquist", email = "jason@example.com"}]
 license = {text = "MIT"}
 requires-python = ">=3.11"
-keywords = ["textual", "vim", "tui", "terminal", "input", "widget"]
+keywords = [
+    "textual",
+    "vim",
+    "vi",
+    "modal-editing",
+    "tui",
+    "terminal",
+    "input",
+    "widget",
+    "text-editor",
+    "command-mode",
+    "visual-mode",
+    "keybindings"
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
+    "Framework :: Textual",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: User Interfaces",
     "Topic :: Terminals",
+    "Topic :: Text Editors",
+    "Typing :: Typed",
 ]
 dependencies = [
     "textual>=0.47.0",
     "rich>=13.7.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/jasoncronquist/vimkeys-input"
+Documentation = "https://github.com/jasoncronquist/vimkeys-input/blob/main/README.md"
+Repository = "https://github.com/jasoncronquist/vimkeys-input"
+"Bug Tracker" = "https://github.com/jasoncronquist/vimkeys-input/issues"
+Changelog = "https://github.com/jasoncronquist/vimkeys-input/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
