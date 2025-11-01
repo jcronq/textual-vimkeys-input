@@ -519,6 +519,16 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextO
         """Handle keys in visual mode."""
         key = event.key
 
+        # Handle pending commands first (gg, etc.)
+        if self.pending_command:
+            if self.pending_command == "g" and key == "g":
+                self.visual_document_start()
+                self.pending_command = None
+                event.prevent_default()
+                return
+            # Clear pending if we got something unexpected
+            self.pending_command = None
+
         # Navigation extends selection
         if key == "h":
             self.visual_left()
@@ -540,6 +550,9 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextO
         elif key == "b":
             self.visual_word_backward()
             event.prevent_default()
+        elif key == "e":
+            self.visual_word_end()
+            event.prevent_default()
 
         # Line movement with selection
         elif key == "0":
@@ -547,6 +560,14 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextO
             event.prevent_default()
         elif key == "dollar":  # $
             self.visual_line_end()
+            event.prevent_default()
+
+        # Document movement with selection
+        elif key == "g":
+            self.pending_command = "g"
+            event.prevent_default()
+        elif key == "G":
+            self.visual_document_end()
             event.prevent_default()
 
         # Yank selection

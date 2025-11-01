@@ -8,6 +8,18 @@ class VisualMixin:
 
     # === VISUAL MODE NAVIGATION ===
 
+    def _make_inclusive_end(self, row: int, col: int) -> tuple[int, int]:
+        """Convert a cursor position to an inclusive selection end.
+
+        TextArea selections are exclusive at the end (like Python slices),
+        but vim visual mode is inclusive. This extends the end position by 1.
+        """
+        line = str(self.get_line(row))
+        # Don't extend past the line end
+        if col < len(line):
+            return (row, col + 1)
+        return (row, col)
+
     def _extend_selection(self, new_row: int, new_col: int) -> None:
         """Extend selection to a new cursor position."""
         if self.selection.start == self.selection.end:
@@ -17,7 +29,9 @@ class VisualMixin:
             # Keep the selection start, extend the end
             start = self.selection.start
 
-        self.selection = Selection(start=start, end=(new_row, new_col))
+        # Make the selection inclusive (vim behavior)
+        inclusive_end = self._make_inclusive_end(new_row, new_col)
+        self.selection = Selection(start=start, end=inclusive_end)
         self.cursor_location = (new_row, new_col)
 
     def visual_left(self) -> None:
@@ -47,27 +61,36 @@ class VisualMixin:
 
     def visual_word_forward(self) -> None:
         """Extend selection to next word (w in visual mode)."""
+        # Save selection start before navigation (which clears selection)
+        selection_start = self.selection.start if self.selection.start != self.selection.end else self.cursor_location
         # Use navigation to find next word
         self.nav_word_forward()
-        # Extend selection to new position
-        new_pos = self.cursor_location
-        if self.selection.start == self.selection.end:
-            self._extend_selection(*new_pos)
-        else:
-            # Already have selection, just update end
-            self.selection = Selection(start=self.selection.start, end=new_pos)
+        # Restore and extend selection to new position (inclusive)
+        new_row, new_col = self.cursor_location
+        inclusive_end = self._make_inclusive_end(new_row, new_col)
+        self.selection = Selection(start=selection_start, end=inclusive_end)
 
     def visual_word_backward(self) -> None:
         """Extend selection to previous word (b in visual mode)."""
+        # Save selection start before navigation (which clears selection)
+        selection_start = self.selection.start if self.selection.start != self.selection.end else self.cursor_location
         # Use navigation to find previous word
         self.nav_word_backward()
-        # Extend selection to new position
-        new_pos = self.cursor_location
-        if self.selection.start == self.selection.end:
-            self._extend_selection(*new_pos)
-        else:
-            # Already have selection, just update end
-            self.selection = Selection(start=self.selection.start, end=new_pos)
+        # Restore and extend selection to new position (inclusive)
+        new_row, new_col = self.cursor_location
+        inclusive_end = self._make_inclusive_end(new_row, new_col)
+        self.selection = Selection(start=selection_start, end=inclusive_end)
+
+    def visual_word_end(self) -> None:
+        """Extend selection to end of word (e in visual mode)."""
+        # Save selection start before navigation (which clears selection)
+        selection_start = self.selection.start if self.selection.start != self.selection.end else self.cursor_location
+        # Use navigation to find word end
+        self.nav_word_end()
+        # Restore and extend selection to new position (inclusive)
+        new_row, new_col = self.cursor_location
+        inclusive_end = self._make_inclusive_end(new_row, new_col)
+        self.selection = Selection(start=selection_start, end=inclusive_end)
 
     def visual_line_start(self) -> None:
         """Extend selection to line start (0 in visual mode)."""
@@ -81,8 +104,32 @@ class VisualMixin:
         # Get current position
         row, _ = self.cursor_location
         line = str(self.get_line(row))
-        # Extend selection to end of line
-        self._extend_selection(row, len(line))
+        # Position cursor at last character of line (or 0 if empty)
+        last_col = max(0, len(line) - 1) if len(line) > 0 else 0
+        # Extend selection to end of line (inclusive)
+        self._extend_selection(row, last_col)
+
+    def visual_document_start(self) -> None:
+        """Extend selection to document start (gg in visual mode)."""
+        # Save selection start before navigation (which clears selection)
+        selection_start = self.selection.start if self.selection.start != self.selection.end else self.cursor_location
+        # Navigate to document start
+        self.nav_document_start()
+        # Restore and extend selection to new position (inclusive)
+        new_row, new_col = self.cursor_location
+        inclusive_end = self._make_inclusive_end(new_row, new_col)
+        self.selection = Selection(start=selection_start, end=inclusive_end)
+
+    def visual_document_end(self) -> None:
+        """Extend selection to document end (G in visual mode)."""
+        # Save selection start before navigation (which clears selection)
+        selection_start = self.selection.start if self.selection.start != self.selection.end else self.cursor_location
+        # Navigate to document end
+        self.nav_document_end()
+        # Restore and extend selection to new position (inclusive)
+        new_row, new_col = self.cursor_location
+        inclusive_end = self._make_inclusive_end(new_row, new_col)
+        self.selection = Selection(start=selection_start, end=inclusive_end)
 
     # === VISUAL MODE OPERATIONS ===
 
