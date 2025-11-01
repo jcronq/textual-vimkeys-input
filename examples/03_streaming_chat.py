@@ -18,7 +18,7 @@ import os
 # Add parent directory to path so we can import vimkeys_input
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from vimkeys_input import VimTextArea, VimMode
+from vimkeys_input import VimTextArea
 
 
 class ChatCommands(Provider):
@@ -86,23 +86,58 @@ class StreamingChatApp(App):
         super().__init__()
         self.is_streaming = False
         self.conversation = []
+        self.thinking_task = None
+        self.display_lines = []  # Track what's shown in history
 
     def compose(self) -> ComposeResult:
         yield Header()
         with Vertical():
-            yield RichLog(id="history", markup=True, auto_scroll=True, highlight=True)
+            yield RichLog(id="history", markup=True, auto_scroll=True, highlight=True, wrap=True)
             yield VimTextArea(id="input")
         yield Footer()
 
     def on_mount(self):
         """Initialize."""
         self.title = "Streaming Chat"
+        self.sub_title = ""
         self.query_one("#input").focus()
 
+        # Add welcome messages
+        self.display_lines = [
+            "[bold cyan]Streaming Chat Application[/bold cyan]",
+            "Watch responses stream in token-by-token!",
+            "",
+        ]
+        self._refresh_history()
+
+    def _refresh_history(self):
+        """Refresh the history display."""
         history = self.query_one("#history")
-        history.write("[bold cyan]Streaming Chat Application[/bold cyan]")
-        history.write("Watch responses stream in token-by-token!")
-        history.write("")
+        history.clear()
+        for line in self.display_lines:
+            history.write(line)
+
+    async def animate_thinking_dots(self):
+        """Animate the thinking indicator dots."""
+        dots = 0
+        messages = [
+            "[dim italic]AI is thinking[/dim italic]",
+            "[dim italic]AI is thinking.[/dim italic]",
+            "[dim italic]AI is thinking..[/dim italic]",
+            "[dim italic]AI is thinking...[/dim italic]",
+        ]
+
+        # Show initial message in display
+        self.display_lines.append(messages[0])
+        self._refresh_history()
+
+        while self.is_streaming:
+            await asyncio.sleep(0.5)  # Update every 500ms
+            dots = (dots + 1) % 4
+
+            # Update the last line with new animation frame
+            self.display_lines[-1] = messages[dots]
+            self._refresh_history()
 
     async def on_vim_text_area_submitted(self, event: VimTextArea.Submitted):
         """Handle user message with streaming."""
@@ -113,36 +148,64 @@ class StreamingChatApp(App):
         if not event.text.strip():
             return
 
-        history = self.query_one("#history")
-
         # Store user message
         self.conversation.append({"role": "user", "content": event.text})
 
-        # User message
-        history.write(f"[bold cyan]You:[/bold cyan] {event.text}")
+        # Add user message to display
+        self.display_lines.append(f"[bold cyan]You:[/bold cyan] {event.text}")
+        self._refresh_history()
 
-        # Show thinking indicator
+        # Show animated thinking indicator
         self.is_streaming = True
-        thinking_msg = history.write("[dim italic]AI is thinking...[/dim italic]")
-
-        # Stream response
-        history.write("[bold green]AI:[/bold green] ", end="")
+        self.thinking_task = asyncio.create_task(self.animate_thinking_dots())
 
         try:
             full_response = ""
             async for token in self.stream_ai_response(event.text):
-                history.write(token, end="")
+                # First token: stop thinking animation and start response line
+                if not full_response:
+                    # Stop thinking animation
+                    if self.thinking_task:
+                        self.thinking_task.cancel()
+                        try:
+                            await self.thinking_task
+                        except asyncio.CancelledError:
+                            pass
+
+                    # Remove thinking line and add AI response line
+                    self.display_lines = self.display_lines[:-1]  # Remove thinking line
+
+                # Accumulate response
                 full_response += token
+
+                # Update the last line with accumulated response (or add if first token)
+                if len(self.display_lines) == 0 or not self.display_lines[-1].startswith("[bold green]AI:"):
+                    self.display_lines.append(f"[bold green]AI:[/bold green] {full_response}")
+                else:
+                    self.display_lines[-1] = f"[bold green]AI:[/bold green] {full_response}"
+
+                # Refresh to show new token
+                self._refresh_history()
                 await asyncio.sleep(0)  # Yield control
 
-            history.write("")  # New line after response
-            history.write("")  # Spacing
+            self.is_streaming = False
+
+            # Add spacing after response
+            self.display_lines.append("")
+            self._refresh_history()
 
             # Store AI response
             self.conversation.append({"role": "assistant", "content": full_response})
 
-        finally:
+        except Exception:
             self.is_streaming = False
+            if self.thinking_task:
+                self.thinking_task.cancel()
+            # Remove thinking line on error
+            if self.display_lines and "thinking" in self.display_lines[-1]:
+                self.display_lines = self.display_lines[:-1]
+            self._refresh_history()
+            raise
 
     async def stream_ai_response(self, prompt: str):
         """Stream AI response token by token (simulated)."""
@@ -168,9 +231,9 @@ class StreamingChatApp(App):
 
     def action_clear_history(self):
         """Clear chat history."""
-        history = self.query_one("#history")
-        history.clear()
+        self.display_lines = []
         self.conversation = []
+        self._refresh_history()
         self.notify("History cleared")
 
     def action_save_conversation(self):
