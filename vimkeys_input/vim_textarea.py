@@ -14,7 +14,9 @@ from .marks import MarksManager
 from .operator_pending import OperatorPendingState, OperatorMotionHandler
 
 
-class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextObjectMixin, TextArea):
+class VimTextArea(
+    NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextObjectMixin, TextArea
+):
     """TextArea with vim keybindings and modal editing.
 
     This widget extends Textual's TextArea to provide vim-style modal editing with:
@@ -426,16 +428,16 @@ class VimTextArea(NavigationMixin, EditingMixin, VisualMixin, SearchMixin, TextO
 
         # Map keys to motion functions
         motion_map = {
-            'h': self.nav_left,
-            'j': self.nav_down,
-            'k': self.nav_up,
-            'l': self.nav_right,
-            'w': self.nav_word_forward,
-            'b': self.nav_word_backward,
-            'e': self.nav_word_end,
-            '0': self.nav_line_start,
-            'dollar': self.nav_line_end,  # $
-            'circumflex': self.nav_first_non_whitespace,  # ^
+            "h": self.nav_left,
+            "j": self.nav_down,
+            "k": self.nav_up,
+            "l": self.nav_right,
+            "w": self.nav_word_forward,
+            "b": self.nav_word_backward,
+            "e": self.nav_word_end,
+            "0": self.nav_line_start,
+            "dollar": self.nav_line_end,  # $
+            "circumflex": self.nav_first_non_whitespace,  # ^
         }
 
         if key in motion_map:

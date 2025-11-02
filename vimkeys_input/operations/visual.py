@@ -62,7 +62,11 @@ class VisualMixin:
     def visual_word_forward(self) -> None:
         """Extend selection to next word (w in visual mode)."""
         # Save selection start before navigation (which clears selection)
-        selection_start = self.selection.start if self.selection.start != self.selection.end else self.cursor_location
+        selection_start = (
+            self.selection.start
+            if self.selection.start != self.selection.end
+            else self.cursor_location
+        )
         # Use navigation to find next word
         self.nav_word_forward()
         # Restore and extend selection to new position (inclusive)
@@ -73,7 +77,11 @@ class VisualMixin:
     def visual_word_backward(self) -> None:
         """Extend selection to previous word (b in visual mode)."""
         # Save selection start before navigation (which clears selection)
-        selection_start = self.selection.start if self.selection.start != self.selection.end else self.cursor_location
+        selection_start = (
+            self.selection.start
+            if self.selection.start != self.selection.end
+            else self.cursor_location
+        )
         # Use navigation to find previous word
         self.nav_word_backward()
         # Restore and extend selection to new position (inclusive)
@@ -84,7 +92,11 @@ class VisualMixin:
     def visual_word_end(self) -> None:
         """Extend selection to end of word (e in visual mode)."""
         # Save selection start before navigation (which clears selection)
-        selection_start = self.selection.start if self.selection.start != self.selection.end else self.cursor_location
+        selection_start = (
+            self.selection.start
+            if self.selection.start != self.selection.end
+            else self.cursor_location
+        )
         # Use navigation to find word end
         self.nav_word_end()
         # Restore and extend selection to new position (inclusive)
@@ -112,7 +124,11 @@ class VisualMixin:
     def visual_document_start(self) -> None:
         """Extend selection to document start (gg in visual mode)."""
         # Save selection start before navigation (which clears selection)
-        selection_start = self.selection.start if self.selection.start != self.selection.end else self.cursor_location
+        selection_start = (
+            self.selection.start
+            if self.selection.start != self.selection.end
+            else self.cursor_location
+        )
         # Navigate to document start
         self.nav_document_start()
         # Restore and extend selection to new position (inclusive)
@@ -123,7 +139,11 @@ class VisualMixin:
     def visual_document_end(self) -> None:
         """Extend selection to document end (G in visual mode)."""
         # Save selection start before navigation (which clears selection)
-        selection_start = self.selection.start if self.selection.start != self.selection.end else self.cursor_location
+        selection_start = (
+            self.selection.start
+            if self.selection.start != self.selection.end
+            else self.cursor_location
+        )
         # Navigate to document end
         self.nav_document_end()
         # Restore and extend selection to new position (inclusive)

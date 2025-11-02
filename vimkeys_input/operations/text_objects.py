@@ -16,20 +16,22 @@ class TextObjectMixin:
 
     # Bracket pairs
     BRACKET_PAIRS = {
-        '(': ')',
-        ')': '(',
-        '[': ']',
-        ']': '[',
-        '{': '}',
-        '}': '{',
-        '<': '>',
-        '>': '<',
+        "(": ")",
+        ")": "(",
+        "[": "]",
+        "]": "[",
+        "{": "}",
+        "}": "{",
+        "<": ">",
+        ">": "<",
     }
 
     # Quote characters
-    QUOTE_CHARS = {'"', "'", '`'}
+    QUOTE_CHARS = {'"', "'", "`"}
 
-    def get_text_object(self, obj_type: str, obj_char: str, inner: bool = True) -> Optional[Tuple[Tuple[int, int], Tuple[int, int]]]:
+    def get_text_object(
+        self, obj_type: str, obj_char: str, inner: bool = True
+    ) -> Optional[Tuple[Tuple[int, int], Tuple[int, int]]]:
         """Get the range for a text object.
 
         Args:
@@ -41,7 +43,7 @@ class TextObjectMixin:
             Tuple of (start_pos, end_pos) or None if not found
             Each pos is (row, col)
         """
-        if obj_type == 'w':
+        if obj_type == "w":
             return self._get_word_object(inner)
         elif obj_char in self.BRACKET_PAIRS:
             return self._get_bracket_object(obj_char, inner)
@@ -49,7 +51,9 @@ class TextObjectMixin:
             return self._get_quote_object(obj_char, inner)
         return None
 
-    def _get_word_object(self, inner: bool = True) -> Optional[Tuple[Tuple[int, int], Tuple[int, int]]]:
+    def _get_word_object(
+        self, inner: bool = True
+    ) -> Optional[Tuple[Tuple[int, int], Tuple[int, int]]]:
         """Get word text object range.
 
         Args:
@@ -86,7 +90,9 @@ class TextObjectMixin:
 
         return ((row, start), (row, end))
 
-    def _get_bracket_object(self, bracket: str, inner: bool = True) -> Optional[Tuple[Tuple[int, int], Tuple[int, int]]]:
+    def _get_bracket_object(
+        self, bracket: str, inner: bool = True
+    ) -> Optional[Tuple[Tuple[int, int], Tuple[int, int]]]:
         """Get bracket pair text object range.
 
         Args:
@@ -97,7 +103,7 @@ class TextObjectMixin:
             (start_pos, end_pos) or None
         """
         # Determine opening and closing brackets
-        if bracket in '([{<':
+        if bracket in "([{<":
             open_char = bracket
             close_char = self.BRACKET_PAIRS[bracket]
         else:
@@ -146,7 +152,9 @@ class TextObjectMixin:
         else:
             return ((row, open_pos), (row, close_pos + 1))
 
-    def _get_quote_object(self, quote: str, inner: bool = True) -> Optional[Tuple[Tuple[int, int], Tuple[int, int]]]:
+    def _get_quote_object(
+        self, quote: str, inner: bool = True
+    ) -> Optional[Tuple[Tuple[int, int], Tuple[int, int]]]:
         """Get quoted string text object range.
 
         Args:
@@ -165,7 +173,7 @@ class TextObjectMixin:
         for i in range(col, -1, -1):
             if line[i] == quote:
                 # Check if it's escaped
-                if i > 0 and line[i-1] == '\\':
+                if i > 0 and line[i - 1] == "\\":
                     continue
                 open_pos = i
                 break
@@ -178,7 +186,7 @@ class TextObjectMixin:
         for i in range(open_pos + 1, len(line)):
             if line[i] == quote:
                 # Check if it's escaped
-                if line[i-1] == '\\':
+                if line[i - 1] == "\\":
                     continue
                 close_pos = i
                 break
@@ -194,7 +202,7 @@ class TextObjectMixin:
 
     # === TEXT OBJECT OPERATIONS ===
 
-    def delete_text_object(self, obj_type: str, obj_char: str = '', inner: bool = True) -> bool:
+    def delete_text_object(self, obj_type: str, obj_char: str = "", inner: bool = True) -> bool:
         """Delete a text object (diw, da", etc.).
 
         Args:
@@ -229,7 +237,7 @@ class TextObjectMixin:
 
         return False
 
-    def change_text_object(self, obj_type: str, obj_char: str = '', inner: bool = True) -> bool:
+    def change_text_object(self, obj_type: str, obj_char: str = "", inner: bool = True) -> bool:
         """Change a text object (ciw, ca", etc.).
 
         Args:
@@ -245,7 +253,7 @@ class TextObjectMixin:
             return True
         return False
 
-    def yank_text_object(self, obj_type: str, obj_char: str = '', inner: bool = True) -> bool:
+    def yank_text_object(self, obj_type: str, obj_char: str = "", inner: bool = True) -> bool:
         """Yank a text object (yiw, ya", etc.).
 
         Args:

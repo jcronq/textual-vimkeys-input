@@ -92,7 +92,9 @@ class OperatorMotionHandler:
     """Handles execution of operator + motion combinations."""
 
     @staticmethod
-    def execute_operator_motion(widget, operator: str, motion_func: Callable, count: int = 1) -> bool:
+    def execute_operator_motion(
+        widget, operator: str, motion_func: Callable, count: int = 1
+    ) -> bool:
         """Execute an operator + motion combination.
 
         Args:
@@ -118,12 +120,12 @@ class OperatorMotionHandler:
             return False
 
         # Now perform the operator on the range
-        return OperatorMotionHandler._apply_operator(
-            widget, operator, start_pos, end_pos
-        )
+        return OperatorMotionHandler._apply_operator(widget, operator, start_pos, end_pos)
 
     @staticmethod
-    def _apply_operator(widget, operator: str, start_pos: Tuple[int, int], end_pos: Tuple[int, int]) -> bool:
+    def _apply_operator(
+        widget, operator: str, start_pos: Tuple[int, int], end_pos: Tuple[int, int]
+    ) -> bool:
         """Apply an operator to a range.
 
         Args:
@@ -147,14 +149,14 @@ class OperatorMotionHandler:
             line = str(widget.get_line(start_row))
             affected_text = line[start_col:end_col]
 
-            if operator == 'd':  # Delete
+            if operator == "d":  # Delete
                 widget.yank_register = affected_text
                 widget.cursor_location = (start_row, start_col)
                 for _ in range(end_col - start_col):
                     widget.action_delete_right()
                 return True
 
-            elif operator == 'c':  # Change (delete + insert mode)
+            elif operator == "c":  # Change (delete + insert mode)
                 widget.yank_register = affected_text
                 widget.cursor_location = (start_row, start_col)
                 for _ in range(end_col - start_col):
@@ -162,7 +164,7 @@ class OperatorMotionHandler:
                 widget._enter_insert_mode()
                 return True
 
-            elif operator == 'y':  # Yank (copy)
+            elif operator == "y":  # Yank (copy)
                 widget.yank_register = affected_text
                 widget.cursor_location = start_pos  # Stay at start
                 return True
@@ -183,20 +185,20 @@ class OperatorMotionHandler:
         Returns:
             True if operation succeeded
         """
-        if operator == 'd':
+        if operator == "d":
             for _ in range(count):
                 widget.edit_delete_line()
             return True
-        elif operator == 'y':
+        elif operator == "y":
             # For multiple lines, yank them all
             row, col = widget.cursor_location
             lines = []
             for i in range(count):
                 if row + i < widget.document.line_count:
                     lines.append(str(widget.get_line(row + i)))
-            widget.yank_register = '\n'.join(lines) + '\n'
+            widget.yank_register = "\n".join(lines) + "\n"
             return True
-        elif operator == 'c':
+        elif operator == "c":
             for _ in range(count):
                 widget.edit_delete_line()
             widget._enter_insert_mode()

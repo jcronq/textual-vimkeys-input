@@ -13,7 +13,7 @@ import sys
 import os
 
 # Add parent directory to path so we can import vimkeys_input
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from vimkeys_input import VimTextArea, VimMode
 
@@ -79,11 +79,13 @@ class SpikeApp(App):
             "  v - Visual mode\n"
             "  Enter - Submit (insert mode)\n",
             id="instructions",
-            markup=True
+            markup=True,
         )
         with Vertical():
             yield VimTextArea(id="input", language="markdown")
-            yield Static("Output will appear here after you press Enter in insert mode.", id="output")
+            yield Static(
+                "Output will appear here after you press Enter in insert mode.", id="output"
+            )
         yield Footer()
 
     def on_mount(self):

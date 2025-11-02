@@ -250,7 +250,7 @@ class TestWordSearch:
 
         widget.search_word_under_cursor(forward=True)
         # Should have stored the word
-        if hasattr(widget, 'last_search_word'):
+        if hasattr(widget, "last_search_word"):
             assert widget.last_search_word is not None
 
 

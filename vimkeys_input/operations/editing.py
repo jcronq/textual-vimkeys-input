@@ -81,10 +81,10 @@ class EditingMixin:
             return
 
         # Check if we yanked a full line (ends with newline)
-        if self.yank_register.endswith('\n'):
+        if self.yank_register.endswith("\n"):
             # Paste line below current line
             self.action_cursor_line_end()
-            self.insert('\n' + self.yank_register.rstrip('\n'))
+            self.insert("\n" + self.yank_register.rstrip("\n"))
         else:
             # Paste after cursor
             self.action_cursor_right()
@@ -96,7 +96,7 @@ class EditingMixin:
             return
 
         # Check if we yanked a full line
-        if self.yank_register.endswith('\n'):
+        if self.yank_register.endswith("\n"):
             # Paste line above current line
             self.action_cursor_line_start()
             self.insert(self.yank_register)
@@ -110,12 +110,12 @@ class EditingMixin:
     def edit_open_line_below(self) -> None:
         """Open new line below current line (o)."""
         self.action_cursor_line_end()
-        self.insert('\n')
+        self.insert("\n")
 
     def edit_open_line_above(self) -> None:
         """Open new line above current line (O)."""
         self.action_cursor_line_start()
-        self.insert('\n')
+        self.insert("\n")
         self.action_cursor_up()
 
     # === WORD OPERATIONS ===
@@ -177,7 +177,7 @@ class EditingMixin:
 
         # Add space and next line content to current line
         self.cursor_location = (row, len(current_line))
-        self.insert(' ' + next_line.lstrip())
+        self.insert(" " + next_line.lstrip())
 
     # === INDENT ===
 

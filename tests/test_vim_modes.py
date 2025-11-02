@@ -27,23 +27,23 @@ def test_vim_textarea_initial_mode():
 def test_vim_textarea_has_yank_register():
     """Test VimTextArea has yank register."""
     widget = VimTextArea()
-    assert hasattr(widget, 'yank_register')
+    assert hasattr(widget, "yank_register")
     assert widget.yank_register == ""
 
 
 def test_vim_textarea_has_pending_command():
     """Test VimTextArea has pending command tracking."""
     widget = VimTextArea()
-    assert hasattr(widget, 'pending_command')
+    assert hasattr(widget, "pending_command")
     assert widget.pending_command is None
 
 
 def test_vim_textarea_mode_methods():
     """Test VimTextArea has mode transition methods."""
     widget = VimTextArea()
-    assert hasattr(widget, '_enter_insert_mode')
-    assert hasattr(widget, '_enter_command_mode')
-    assert hasattr(widget, '_enter_visual_mode')
+    assert hasattr(widget, "_enter_insert_mode")
+    assert hasattr(widget, "_enter_command_mode")
+    assert hasattr(widget, "_enter_visual_mode")
 
 
 def test_mode_transitions():

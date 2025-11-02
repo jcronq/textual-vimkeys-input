@@ -13,7 +13,7 @@ import sys
 import os
 
 # Add parent directory to path so we can import vimkeys_input
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from vimkeys_input import VimTextArea
 

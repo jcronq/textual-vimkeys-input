@@ -19,7 +19,7 @@ import sys
 import os
 
 # Add parent directory to path so we can import vimkeys_input
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from vimkeys_input import VimTextArea
 
@@ -257,7 +257,9 @@ class StreamingChatApp(App):
                 full_response += token
 
                 # Update the last line with accumulated response (or add if first token)
-                if len(self.display_lines) == 0 or not self.display_lines[-1].startswith("[bold green]AI:"):
+                if len(self.display_lines) == 0 or not self.display_lines[-1].startswith(
+                    "[bold green]AI:"
+                ):
                     self.display_lines.append(f"[bold green]AI:[/bold green] {full_response}")
                 else:
                     self.display_lines[-1] = f"[bold green]AI:[/bold green] {full_response}"
@@ -330,6 +332,7 @@ class StreamingChatApp(App):
 
         # Save to file
         import datetime
+
         filename = f"conversation_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
 
         try:

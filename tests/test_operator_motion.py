@@ -138,6 +138,7 @@ class TestLineWiseOperators:
         widget.cursor_location = (1, 0)
 
         from vimkeys_input.operator_pending import OperatorMotionHandler
+
         success = OperatorMotionHandler.execute_line_operator(widget, "d", 1)
         assert success
 
@@ -149,6 +150,7 @@ class TestLineWiseOperators:
         widget.cursor_location = (1, 0)
 
         from vimkeys_input.operator_pending import OperatorMotionHandler
+
         success = OperatorMotionHandler.execute_line_operator(widget, "d", 3)
         assert success
 
@@ -160,6 +162,7 @@ class TestLineWiseOperators:
         widget.cursor_location = (0, 0)
 
         from vimkeys_input.operator_pending import OperatorMotionHandler
+
         success = OperatorMotionHandler.execute_line_operator(widget, "y", 1)
         assert success
         assert widget.yank_register == "hello world\n"
@@ -172,6 +175,7 @@ class TestLineWiseOperators:
         widget.cursor_location = (0, 0)
 
         from vimkeys_input.operator_pending import OperatorMotionHandler
+
         success = OperatorMotionHandler.execute_line_operator(widget, "c", 1)
         assert success
         assert widget.vim_mode == VimMode.INSERT
@@ -183,6 +187,7 @@ class TestOperatorPendingState:
     def test_set_and_get_operator(self):
         """Test setting and getting operator."""
         from vimkeys_input.operator_pending import OperatorPendingState
+
         state = OperatorPendingState()
 
         state.set_operator("d")
@@ -192,6 +197,7 @@ class TestOperatorPendingState:
     def test_clear_state(self):
         """Test clearing state."""
         from vimkeys_input.operator_pending import OperatorPendingState
+
         state = OperatorPendingState()
 
         state.set_operator("d", count=3)
@@ -202,6 +208,7 @@ class TestOperatorPendingState:
     def test_count_multiplication(self):
         """Test count * motion_count."""
         from vimkeys_input.operator_pending import OperatorPendingState
+
         state = OperatorPendingState()
 
         state.set_operator("d", count=2)
@@ -211,6 +218,7 @@ class TestOperatorPendingState:
     def test_count_only(self):
         """Test with only operator count."""
         from vimkeys_input.operator_pending import OperatorPendingState
+
         state = OperatorPendingState()
 
         state.set_operator("d", count=5)
@@ -219,6 +227,7 @@ class TestOperatorPendingState:
     def test_motion_count_only(self):
         """Test with only motion count."""
         from vimkeys_input.operator_pending import OperatorPendingState
+
         state = OperatorPendingState()
 
         state.set_operator("d")
@@ -228,6 +237,7 @@ class TestOperatorPendingState:
     def test_no_count(self):
         """Test with no count."""
         from vimkeys_input.operator_pending import OperatorPendingState
+
         state = OperatorPendingState()
 
         state.set_operator("d")

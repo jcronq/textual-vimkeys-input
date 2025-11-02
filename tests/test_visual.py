@@ -177,10 +177,8 @@ class TestVisualIndent:
 
         # Create a mock selection
         from textual.widgets.text_area import Selection, Location
-        widget.selection = Selection(
-            start=Location(0, 0),
-            end=Location(1, 5)
-        )
+
+        widget.selection = Selection(start=Location(0, 0), end=Location(1, 5))
 
         # Should not crash
         widget.visual_indent()
@@ -192,10 +190,8 @@ class TestVisualIndent:
         widget.vim_mode = VimMode.VISUAL
 
         from textual.widgets.text_area import Selection, Location
-        widget.selection = Selection(
-            start=Location(0, 0),
-            end=Location(1, 5)
-        )
+
+        widget.selection = Selection(start=Location(0, 0), end=Location(1, 5))
 
         # Should not crash
         widget.visual_dedent()
