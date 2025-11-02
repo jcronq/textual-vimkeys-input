@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2025-11-02
+
+### Fixed
+- Invalid PyPI classifier removed (`Framework :: Textual` is not recognized)
+- CD workflow permissions - added `contents: write` for tag creation
+- All linting errors resolved (unused imports and variables)
+- Code formatting applied across all files with ruff
+
 ## [0.3.0] - 2025-11-01
 
 ### Added
@@ -105,7 +113,8 @@ We follow [Semantic Versioning](https://semver.org/):
 
 ## Links
 
-- [Unreleased]: https://github.com/yourusername/vimkeys-input/compare/v0.3.0...HEAD
+- [Unreleased]: https://github.com/yourusername/vimkeys-input/compare/v0.3.1...HEAD
+- [0.3.1]: https://github.com/yourusername/vimkeys-input/compare/v0.3.0...v0.3.1
 - [0.3.0]: https://github.com/yourusername/vimkeys-input/compare/v0.2.0...v0.3.0
 - [0.2.0]: https://github.com/yourusername/vimkeys-input/compare/v0.1.0...v0.2.0
 - [0.1.0]: https://github.com/yourusername/vimkeys-input/releases/tag/v0.1.0
