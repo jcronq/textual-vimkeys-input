@@ -18,10 +18,7 @@ class TestDeleteMotion:
         widget.operator_pending.set_operator("d")
         widget.nav_word_forward()  # Motion
         # In actual usage, _handle_operator_motion would do this
-        from vimkeys_input.operator_pending import OperatorMotionHandler
 
-        # Text should be shorter after delete
-        initial_len = len(widget.text)
         # We can't fully test this without the event system, but we can test the infrastructure
         assert widget.operator_pending.is_pending()
 

@@ -218,7 +218,6 @@ class TestJoinLines:
         widget.vim_mode = VimMode.COMMAND
         widget.cursor_location = (0, 0)
 
-        original = widget.text
         widget.edit_join_lines()
         # Should not crash
 

@@ -218,7 +218,7 @@ class TestWordSearch:
         widget.vim_mode = VimMode.COMMAND
         widget.cursor_location = (0, 0)  # On "hello"
 
-        result = widget.search_word_under_cursor(forward=True)
+        widget.search_word_under_cursor(forward=True)
         # Should find next occurrence or return bool
 
     def test_search_word_under_cursor_backward(self):
@@ -228,7 +228,7 @@ class TestWordSearch:
         widget.vim_mode = VimMode.COMMAND
         widget.cursor_location = (0, 12)  # On second "hello"
 
-        result = widget.search_word_under_cursor(forward=False)
+        widget.search_word_under_cursor(forward=False)
         # Should find previous occurrence
 
     def test_search_word_under_cursor_not_on_word(self):
@@ -275,7 +275,7 @@ class TestSearchMultiline:
         widget.vim_mode = VimMode.COMMAND
         widget.cursor_location = (0, 0)
 
-        result = widget.search_word_under_cursor(forward=True)
+        widget.search_word_under_cursor(forward=True)
         # Should find "hello" on line 3
 
     def test_search_word_multiline_backward(self):
@@ -285,7 +285,7 @@ class TestSearchMultiline:
         widget.vim_mode = VimMode.COMMAND
         widget.cursor_location = (2, 0)  # On second "hello"
 
-        result = widget.search_word_under_cursor(forward=False)
+        widget.search_word_under_cursor(forward=False)
         # Should find first "hello"
 
 
@@ -299,7 +299,7 @@ class TestSearchEdgeCases:
         widget.vim_mode = VimMode.COMMAND
         widget.cursor_location = (0, 0)
 
-        result = widget.search_char_forward("h")
+        widget.search_char_forward("h")
         # Should not find 'h' (cursor is already on it)
 
     def test_search_at_line_end(self):

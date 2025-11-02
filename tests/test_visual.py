@@ -142,7 +142,6 @@ class TestVisualOperations:
         widget.vim_mode = VimMode.VISUAL
         widget.selected_text = ""
 
-        original_register = widget.yank_register
         widget.visual_yank()
         # Should not crash
 
