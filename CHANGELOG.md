@@ -7,11 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-11-01
+
 ### Added
+- Visual mode word end motion (`e`)
+- Visual mode document motions (`gg`, `G`)
+- CI/CD workflows for automated testing and PyPI publishing
 - Comprehensive documentation suite (README, CONTRIBUTING, user guide)
 - Input history navigation in streaming chat example
 - Animated thinking indicator in streaming chat example
 - Text wrapping support in chat examples
+
+### Fixed
+- Visual mode delete operations (incorrect parameter order in `replace()` calls)
+- Visual mode word motions (`w`, `b`) now properly maintain selection
+- Visual mode selections are now inclusive (vim behavior) instead of exclusive
+- Visual mode indent/dedent operations parameter order
+
+### Changed
+- Visual mode selections now use `_make_inclusive_end()` helper for vim-compliant behavior
 
 ## [0.2.0] - 2025-11-01
 
@@ -91,6 +105,7 @@ We follow [Semantic Versioning](https://semver.org/):
 
 ## Links
 
-- [Unreleased]: https://github.com/yourusername/vimkeys-input/compare/v0.2.0...HEAD
+- [Unreleased]: https://github.com/yourusername/vimkeys-input/compare/v0.3.0...HEAD
+- [0.3.0]: https://github.com/yourusername/vimkeys-input/compare/v0.2.0...v0.3.0
 - [0.2.0]: https://github.com/yourusername/vimkeys-input/compare/v0.1.0...v0.2.0
 - [0.1.0]: https://github.com/yourusername/vimkeys-input/releases/tag/v0.1.0

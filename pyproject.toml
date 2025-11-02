@@ -1,6 +1,6 @@
 [project]
 name = "vimkeys-input"
-version = "0.2.0"
+version = "0.3.0"
 description = "Comprehensive Vim-style modal editing widget for Textual with operator+motion, text objects, and visual mode"
 readme = "README.md"
 authors = [{name = "Jason Cronquist", email = "jason@example.com"}]
