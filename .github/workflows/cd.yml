@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/vimkeys-input
+      url: https://pypi.org/p/textual-vimkeys-input
     permissions:
       id-token: write  # Required for trusted publishing
     steps:

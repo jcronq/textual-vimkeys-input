@@ -1,6 +1,6 @@
 [project]
-name = "vimkeys-input"
-version = "0.3.1"
+name = "textual-vimkeys-input"
+version = "0.3.2"
 description = "Comprehensive Vim-style modal editing widget for Textual with operator+motion, text objects, and visual mode"
 readme = "README.md"
 authors = [{name = "Jason Cronquist", email = "jason@example.com"}]
@@ -43,11 +43,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/jasoncronquist/vimkeys-input"
-Documentation = "https://github.com/jasoncronquist/vimkeys-input/blob/main/README.md"
-Repository = "https://github.com/jasoncronquist/vimkeys-input"
-"Bug Tracker" = "https://github.com/jasoncronquist/vimkeys-input/issues"
-Changelog = "https://github.com/jasoncronquist/vimkeys-input/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/jcronq/textual-vimkeys-input"
+Documentation = "https://github.com/jcronq/textual-vimkeys-input/blob/main/README.md"
+Repository = "https://github.com/jcronq/textual-vimkeys-input"
+"Bug Tracker" = "https://github.com/jcronq/textual-vimkeys-input/issues"
+Changelog = "https://github.com/jcronq/textual-vimkeys-input/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
@@ -60,6 +60,9 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["vimkeys_input"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
